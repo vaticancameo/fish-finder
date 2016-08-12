@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -24,13 +25,29 @@ class Tide(db.Model):
 
     tide_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     station_id = db.Column(db.Integer, db.ForeignKey('stations.station_id'), nullable=False)
+    date = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow))
+    tide1_time = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.datetime.utcnow))
+    tide1_height = db.Column(db.Float, nullable=False)
+    tide2_time = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.datetime.utcnow))
+    tide2_height = db.Column(db.Float, nullable=False)
+    tide3_time = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.datetime.utcnow))
+    tide3_height = db.Column(db.Float, nullable=False)
+    tide4_time = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow))
+    tide4_height = db.Column(db.Float)
+    tide5_time = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow))
+    tide5_height = db.Column(db.Float)
+    tide6_time = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow))
+    tide6_height = db.Column(db.Float)
+    full_moon = db.Column(Boolean)
+    sunrise = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow))
+    sunset = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow))
 
     stations = db.relationship("Station")
 
 
 ###############################
 def connect_to_db(app):
-    """Connect the database to our Flask app."""
+    """Connect the database to the Flask app."""
 
     # Configure to use our PostgreSQL database
     app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///stations_tides'
