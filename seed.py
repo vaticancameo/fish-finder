@@ -2,67 +2,60 @@
 
 from sqlalchemy import func
 from model import User
-# from model import Rating
-# from model import Movie
+from model import Station, Tide
 
 from model import connect_to_db, db
 from server import app
 
 
-def load_users():
-    """Load users from u.user into database."""
+def load_stations():
+    """Load stations from u.station into database."""
 
-    print "Users"
+    print "Stations"
 
-    # Delete all rows in table, so if we need to run this a second time,
-    # we won't be trying to add duplicate users
-    User.query.delete()
+    # Delete all rows in table, so if this is run more than once, duplicate
+    # stations will not be added
+    Station.query.delete()
 
-    # Read u.user file and insert data
-    for row in open("seed_data/u.user"):
+    # Read u.station file and insert data
+    for row in open("seed_data/u.station"):
         row = row.rstrip()
-        user_id, age, gender, occupation, zipcode = row.split("|")
+        station_id, name, latitude, longitude = row.split()
 
-        user = User(user_id=user_id,
-                    age=age,
-                    zipcode=zipcode)
+        station = Station(station_id=station_id, name=name, latitude=latitude, longitude=longitude)
 
-        # We need to add to the session or it won't ever be stored
-        db.session.add(user)
+        # Add each station to the session
+        db.session.add(station)
 
-    # Once we're done, we should commit our work
+    # Commit all new stations to the db
     db.session.commit()
 
 
-def load_movies():
-    """Load movies from u.item into database."""
+def load_tides():
+    """Load tides from u.[station#] into database."""
 
+    print "Tides"
 
-def load_ratings():
-    """Load ratings from u.data into database."""
+    stations = [9410170, 9410230, 9410580, 9410680, 9410660, 9410840, 9411340, 
+                9411399, 9411406, 9412110, 9412802, 9413450, 9413663, 9414131, 
+                9414290, 9414317, 9414764, 9414750, 9414746, 9414358, 9414688, 
+                9414458, 9414523, 9414509, 9414575, 9414863, 9415218, 9415143, 
+                9415102, 9415265, 9415144, 9414811, 9415112, 9415064, 9415316, 
+                9415056, 9415338, 9414958, 9415020, 9416409, 9416841, 9417426, 
+                9418767, 9418723, 9418817, 9419750, 9419945]
 
-
-def set_val_user_id():
-    """Set value for the next user_id after seeding database"""
-
-    # Get the Max user_id in the database
-    result = db.session.query(func.max(User.user_id)).one()
-    max_id = int(result[0])
-
-    # Set the value for the next user_id to be max_id + 1
-    query = "SELECT setval('users_user_id_seq', :new_id)"
-    db.session.execute(query, {'new_id': max_id + 1})
-    db.session.commit()
+    # Delete all rows in table, so if this is run more than once, duplicate
+    # tides will not be added
+    Tide.query.delete()
 
 
 if __name__ == "__main__":
     connect_to_db(app)
 
     # In case tables haven't been created, create them
+    db.drop_all()
     db.create_all()
 
     # Import different types of data
-    load_users()
-    load_movies()
-    load_ratings()
-    set_val_user_id()
+    load_stations()
+    load_tides()

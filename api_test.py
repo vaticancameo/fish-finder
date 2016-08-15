@@ -18,7 +18,6 @@ def retrieve_tides_json(stations):
 # http://tidesandcurrents.noaa.gov/api/datagetter?begin_date=20160803%2010:00
 # &end_date=20170802%2017:00&station=9415020&product=predictions&datum=navd
 # &units=metric&interval=h&time_zone=gmt&format=json
-
     for station in stations:
         params = {"station": 9410170,
                   # "begin_date": "20160731 00:00",
@@ -45,20 +44,26 @@ def retrieve_tides_soap():
 # http://opendap.co-ops.nos.noaa.gov/axis/webservices/highlowtidepred/
 # response.jsp?stationId=9414958&beginDate=20160810&endDate=20160812
 # &datum=MLLW&unit=0&timeZone=0&format=xml&Submit=Submit
-    params = {"station": 9414958,
+    params = {"stationId": 9414958,
               "beginDate": "20160801",
               "endDate": "20160803",
-              "timeZone": "a",
+              "timeZone": "1",
               "unit": "0",
-              "format": "xml",
+              "format": "text",
               "datum": "MLLW",
               "Submit": "Submit"
               }
 
     res = requests.get(url, params=params)
-    print res.content
-    # print res.json()
+    data = res.content.split('<pre>')[-1]
 
+    f = open('9414958', 'w')
+
+    contents = data.replace('</pre>', '')
+
+    f.write(contents)
+
+    f.close()
 
 def check_api():
 
