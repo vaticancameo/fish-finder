@@ -16,21 +16,20 @@ class Station(db.Model):
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
 
-    tides = db.relationship("Tide")
-    # tide_details = db.relationship("TideDetail")
+    tide_days = db.relationship("TideDay")
 
 
-class Tide(db.Model):
-    """ Table to store tide and station data on a given day """
+class TideDay(db.Model):
+    """ Table to store station data on a given day """
 
-    __tablename__ = "tides"
+    __tablename__ = "tide_days"
 
-    tide_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    tide_day_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     station_id = db.Column(db.Integer, db.ForeignKey('stations.station_id'), nullable=False)
-    date = db.Column(sqlalchemy.types.Date)
+    date = db.Column(sqlalchemy.types.Date, nullable=False)
     full_moon = db.Column(db.Boolean)
-    sunrise = db.Column(sqlalchemy.types.Time)
-    sunset = db.Column(sqlalchemy.types.Time)
+    sunrise = db.Column(sqlalchemy.types.Time(timezone=True))
+    sunset = db.Column(sqlalchemy.types.Time(timezone=True))
 
     station = db.relationship("Station")
     tide_details = db.relationship("TideDetail")
@@ -42,11 +41,11 @@ class TideDetail(db.Model):
     __tablename__ = "tide_details"
 
     tide_detail_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    tide_id = db.Column(db.Integer, db.ForeignKey('tides.tide_id'), nullable=False)
-    tide_time = db.Column(sqlalchemy.types.Time, nullable=False)
+    tide_day_id = db.Column(db.Integer, db.ForeignKey('tide_days.tide_day_id'), nullable=False)
+    tide_time = db.Column(sqlalchemy.types.Time(timezone=True), nullable=False)
     tide_height = db.Column(db.Float, nullable=False)
 
-    tide = db.relationship("Tide")
+    tide_day = db.relationship("TideDay")
 
 
 ###############################
