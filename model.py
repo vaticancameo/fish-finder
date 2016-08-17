@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+import sqlalchemy
 
 db = SQLAlchemy()
 
@@ -10,39 +11,42 @@ class Station(db.Model):
 
     __tablename__ = "stations"
 
-    station_id = db.Column(db.Integer, primary_key=True, autoincrement=True, nullable=False)
+    station_id = db.Column(db.Integer, primary_key=True, nullable=False)
     name = db.Column(db.String(100), nullable=False)
     latitude = db.Column(db.Float, nullable=False)
     longitude = db.Column(db.Float, nullable=False)
 
     tides = db.relationship("Tide")
+    # tide_details = db.relationship("TideDetail")
 
 
 class Tide(db.Model):
-    """ Table to store tide data for each station on a given day """
+    """ Table to store tide and station data on a given day """
 
     __tablename__ = "tides"
 
     tide_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     station_id = db.Column(db.Integer, db.ForeignKey('stations.station_id'), nullable=False)
-    date = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
-    tide1_time = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.datetime.utcnow)
-    tide1_height = db.Column(db.Float, nullable=False)
-    tide2_time = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.datetime.utcnow)
-    tide2_height = db.Column(db.Float, nullable=False)
-    tide3_time = db.Column(db.DateTime(timezone=True), nullable=False, default=datetime.datetime.utcnow)
-    tide3_height = db.Column(db.Float, nullable=False)
-    tide4_time = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
-    tide4_height = db.Column(db.Float)
-    tide5_time = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
-    tide5_height = db.Column(db.Float)
-    tide6_time = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
-    tide6_height = db.Column(db.Float)
+    date = db.Column(sqlalchemy.types.Date)
     full_moon = db.Column(db.Boolean)
-    sunrise = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
-    sunset = db.Column(db.DateTime(timezone=True), default=datetime.datetime.utcnow)
+    sunrise = db.Column(sqlalchemy.types.Time)
+    sunset = db.Column(sqlalchemy.types.Time)
 
-    stations = db.relationship("Station")
+    station = db.relationship("Station")
+    tide_details = db.relationship("TideDetail")
+
+
+class TideDetail(db.Model):
+    """ Table to store tide details for each Tide ID """
+
+    __tablename__ = "tide_details"
+
+    tide_detail_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    tide_id = db.Column(db.Integer, db.ForeignKey('tides.tide_id'), nullable=False)
+    tide_time = db.Column(sqlalchemy.types.Time, nullable=False)
+    tide_height = db.Column(db.Float, nullable=False)
+
+    tide = db.relationship("Tide")
 
 
 ###############################

@@ -17,7 +17,7 @@ def display_map():
     """ Display map with search box and test markers """
 
     station1 = {"id": "9414958", "name": "Bolinas, Bolinas Lagoon", "lat": 37.9080, "lon": -122.6785}
-    station2 = {"id": "9414958", "name": "Bolinas, Bolinas Lagoon", "lat": 37.715593, "lon": -122.307468}
+    station2 = {"id": "9410170", "name": "San Diego", "lat": 32.7142, "lon": -117.1736}
 
     stations_locations = [station1, station2]
 
@@ -35,16 +35,23 @@ def calculate_distance():
 
 @app.route("/test", methods=['POST'])
 def test():
-   
+
     lat = request.form.get("lat")
     lon = request.form.get("lon")
 
     station1 = {"id": "9414958", "name": "Bolinas, Bolinas Lagoon", "lat": 37.9080, "lon": -122.6785}
-    station2 = {"id": "9414958", "name": "Bolinas, Bolinas Lagoon", "lat": 37.715593, "lon": -122.307468}
+    station2 = {"id": "9410170", "name": "San Diego", "lat": 32.7142, "lon": -117.1736}
+    station3 = {"id": "9410230", "name": "La Jolla", "lat": 32.8667, "lon": -117.258}
+    station4 = {"id": "9410580", "name": "Newport Bay Entrance", "lat": 33.6033, "lon": -117.883}
+    station5 = {"id": "9410680", "name": "Long Beach", "lat": 33.7517, "lon": -118.227}
+    station6 = {"id": "9410660", "name": "Los Angeles", "lat": 33.72, "lon": -118.272}
+    station7 = {"id": "9410840", "name": "Santa Monica", "lat": 34.0083, "lon": -118.5}
+    station8 = {"id": "9411340", "name": "Santa Barbara", "lat": 34.4083, "lon": -119.685}
+    station9 = {"id": "9411399", "name": "Gaviota State Park", "lat": 34.4694, "lon": -120.2283}
+    station10 = {"id": "9412110", "name": "Port San Luis", "lat": 35.1767, "lon": -120.76}
 
-    stations_locations = [station1, station2]
-    closest_station = None
-    closest_dist = 10000000
+    stations_locations = [station1, station2, station3, station4, station5, station6, station7, station8, station9, station10]
+
     station_distances = []
 
     for station in stations_locations:
@@ -54,7 +61,7 @@ def test():
 
         station_distances.append({"station": station, "dist": dist})
 
-    nearest_stations = sorted(station_distances, key=lambda d: d["dist"])[:10]
+    nearest_stations = sorted(station_distances, key=lambda d: d["dist"])[:7]
 
     print nearest_stations
 
