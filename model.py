@@ -1,6 +1,5 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
 import sqlalchemy
 
 db = SQLAlchemy()
@@ -36,7 +35,7 @@ class TideDay(db.Model):
 
 
 class TideDetail(db.Model):
-    """ Table to store tide details for each Tide ID """
+    """ Table to store time and height for all events associated with a tide_day_id """
 
     __tablename__ = "tide_details"
 
