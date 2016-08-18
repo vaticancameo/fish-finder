@@ -59,6 +59,7 @@
     <div id="data">
       {{ data }}
     </div>
+      <div id="output"></div>
 
     <input id="pac-input" class="controls" type="text" placeholder="Search box">
     <div id="map"></div>
@@ -76,21 +77,92 @@
           zoom: 6,
           mapTypeId: 'terrain'
         });
-        var data = document.getElementById('data');
-        var data_str = data.textContent;
-        var data_objs = JSON.parse(data_str);
-        for (var i = 0; i < data_objs.length; i++) {
-          var data_obj = data_objs[i];
-          var lat = data_obj.lat;
-          var lon = data_obj.lon;
-          var myLatLng = {lat: lat, lng: lon};
-          console.log(myLatLng);
-          var marker = new google.maps.Marker({
-            position: myLatLng,
-            map: map,
-            title: 'Hello World!'
-          });
+
+        // make markers
+        // var data = document.getElementById('data');
+        // var data_str = data.textContent;
+        // var data_objs = JSON.parse(data_str);
+        // for (var i = 0; i < data_objs.length; i++) {
+        //   var data_obj = data_objs[i];
+        //   var lat = data_obj.lat;
+        //   var lon = data_obj.lon;
+        //   var myLatLng = {lat: lat, lng: lon};
+        //   console.log(myLatLng);
+        //   var marker = new google.maps.Marker({
+        //     position: myLatLng,
+        //     map: map,
+        //     title: 'Hello World!'
+        //   });
+
+        var markersArray = [];
+
+// ~~~~~~~~~~~~~
+        var geocoder = new google.maps.Geocoder;
+
+        var service = new google.maps.DistanceMatrixService;
+        service.getDistanceMatrix({
+          // after $ and ajax, add orgin into here
+          origins: ['Bolinas, CA'],
+          // from your {{ data }}
+          destinations: ['San Francisco, CA', 'Oakland, CA'],
+          travelMode: 'DRIVING',
+          unitSystem: google.maps.UnitSystem.METRIC,
+          avoidHighways: false,
+          avoidTolls: false
+        }, function(response, status) {
+          if (status !== 'OK') {
+            alert('Error was: ' + status);
+          } else {
+            var originList = response.originAddresses;
+            var destinationList = response.destinationAddresses;
+            var outputDiv = document.getElementById('output');
+            outputDiv.innerHTML = '';
+            deleteMarkers(markersArray);
+
+            var showGeocodedAddressOnMap = function(asDestination) {
+              var icon = asDestination ? destinationIcon : originIcon;
+              return function(results, status) {
+                if (status === 'OK') {
+                  map.fitBounds(bounds.extend(results[0].geometry.location));
+                  markersArray.push(new google.maps.Marker({
+                    map: map,
+                    position: results[0].geometry.location,
+                    icon: icon
+                  }));
+                } else {
+                  alert('Geocode was not successful due to: ' + status);
+                }
+              };
+            };
+
+            for (var i = 0; i < originList.length; i++) {
+              var results = response.rows[i].elements;
+              geocoder.geocode({'address': originList[i]},
+                  showGeocodedAddressOnMap(false));
+              for (var j = 0; j < results.length; j++) {
+                geocoder.geocode({'address': destinationList[j]},
+                    showGeocodedAddressOnMap(true));
+                outputDiv.innerHTML += originList[i] + ' to ' + destinationList[j] +
+                    ': ' + results[j].distance.text + ' in ' +
+                    results[j].duration.text + '<br>';
+              }
+            }
+          }
+        });
+      }
+
+      function deleteMarkers(markersArray) {
+        for (var i = 0; i < markersArray.length; i++) {
+          markersArray[i].setMap(null);
         }
+        markersArray = [];
+      // ~~~~~~~~~~~~~~~
+
+
+}
+
+
+
         // Create the search box and link it to the UI element.
         var input = document.getElementById('pac-input');
         var searchBox = new google.maps.places.SearchBox(input);
@@ -119,6 +191,8 @@
               console.log("Returned place contains no geometry");
               return;
             }
+
+            // displays new marker based on search
             var icon = {
               url: place.icon,
               size: new google.maps.Size(71, 71),
@@ -151,7 +225,77 @@
       $.post("/test", req, function (data) {
         alert(data);
       });
-      }
+
+
+
+// event listener
+// on change of search bar, get text
+// ajax call to get 10 destianations
+
+      // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      //   var geocoder = new google.maps.Geocoder;
+
+      //   var service = new google.maps.DistanceMatrixService;
+      //   service.getDistanceMatrix({
+      //     // after $ and ajax, add orgin into here
+      //     origins: ['Bolinas, CA'],
+      //     // from your {{ data }}
+      //     destinations: ['San Francisco, CA', 'Oakland, CA'],
+      //     travelMode: 'DRIVING',
+      //     unitSystem: google.maps.UnitSystem.METRIC,
+      //     avoidHighways: false,
+      //     avoidTolls: false
+      //   }, function(response, status) {
+      //     if (status !== 'OK') {
+      //       alert('Error was: ' + status);
+      //     } else {
+      //       var originList = response.originAddresses;
+      //       var destinationList = response.destinationAddresses;
+      //       var outputDiv = document.getElementById('output');
+      //       outputDiv.innerHTML = '';
+      //       deleteMarkers(markersArray);
+
+      //       var showGeocodedAddressOnMap = function(asDestination) {
+      //         var icon = asDestination ? destinationIcon : originIcon;
+      //         return function(results, status) {
+      //           if (status === 'OK') {
+      //             map.fitBounds(bounds.extend(results[0].geometry.location));
+      //             markersArray.push(new google.maps.Marker({
+      //               map: map,
+      //               position: results[0].geometry.location,
+      //               icon: icon
+      //             }));
+      //           } else {
+      //             alert('Geocode was not successful due to: ' + status);
+      //           }
+      //         };
+      //       };
+
+      //       for (var i = 0; i < originList.length; i++) {
+      //         var results = response.rows[i].elements;
+      //         geocoder.geocode({'address': originList[i]},
+      //             showGeocodedAddressOnMap(false));
+      //         for (var j = 0; j < results.length; j++) {
+      //           geocoder.geocode({'address': destinationList[j]},
+      //               showGeocodedAddressOnMap(true));
+      //           outputDiv.innerHTML += originList[i] + ' to ' + destinationList[j] +
+      //               ': ' + results[j].distance.text + ' in ' +
+      //               results[j].duration.text + '<br>';
+      //         }
+      //       }
+      //     }
+      //   });
+      // }
+
+      // function deleteMarkers(markersArray) {
+      //   for (var i = 0; i < markersArray.length; i++) {
+      //     markersArray[i].setMap(null);
+      //   }
+      //   markersArray = [];
+      // }
+
+      // ~~~~~~~~~~~~~~~~~~~~~~~~
+}
     </script>
 
 

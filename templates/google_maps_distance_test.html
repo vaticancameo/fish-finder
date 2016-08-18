@@ -43,10 +43,10 @@
     <div id="right-panel">
       <div id="inputs">
         <pre>
-var origin1 = {lat: 55.930, lng: -3.118};
+<!-- var origin1 = {lat: 55.930, lng: -3.118};
 var origin2 = 'Greenwich, England';
 var destinationA = 'Stockholm, Sweden';
-var destinationB = {lat: 50.087, lng: 14.421};
+var destinationB = {lat: 50.087, lng: 14.421}; -->
         </pre>
       </div>
       <div>
@@ -60,10 +60,10 @@ var destinationB = {lat: 50.087, lng: 14.421};
         var bounds = new google.maps.LatLngBounds;
         var markersArray = [];
 
-        var origin1 = {lat: 55.93, lng: -3.118};
-        var origin2 = 'Greenwich, England';
-        var destinationA = 'Stockholm, Sweden';
-        var destinationB = {lat: 50.087, lng: 14.421};
+        // var origin1 = {lat: 55.93, lng: -3.118};
+        // var origin2 = 'Greenwich, England';
+        // var destinationA = 'Stockholm, Sweden';
+        // var destinationB = {lat: 50.087, lng: 14.421};
 
         var destinationIcon = 'https://chart.googleapis.com/chart?' +
             'chst=d_map_pin_letter&chld=D|FF0000|000000';
@@ -73,13 +73,15 @@ var destinationB = {lat: 50.087, lng: 14.421};
           center: {lat: 55.53, lng: 9.4},
           zoom: 10
         });
-        //function from here
+        //function from here (origin, destintions)
         var geocoder = new google.maps.Geocoder;
 
         var service = new google.maps.DistanceMatrixService;
         service.getDistanceMatrix({
-          origins: [origin1, origin2],
-          destinations: [destinationA, destinationB],
+          // after $ and ajax, add orgin into here
+          origins: ['Bolinas, CA'],
+          // from your {{ data }}
+          destinations: ['San Francisco, CA', 'Oakland, CA'],
           travelMode: 'DRIVING',
           unitSystem: google.maps.UnitSystem.METRIC,
           avoidHighways: false,
