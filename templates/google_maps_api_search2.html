@@ -147,15 +147,17 @@
 
 
         var geocoder = new google.maps.Geocoder;
-        var userInput = $('#pac-input').on('change', function() {
-          origins.push($('#pac-input').val())
+        $('#pac-input').on('change', function() {
+          var userInput = $('#pac-input').val();
+          console.log(userInput);
         });
+
 
         var service = new google.maps.DistanceMatrixService;
         service.getDistanceMatrix({
           // after $ and ajax, add orgin into here
-          origins: ['Bolinas, CA'],
-          // origins: [userInput],
+          // origins: ['Bolinas, CA'],
+          origins: [userInput],
           // from your {{ data }}
           destinations: ['San Francisco, CA', 'Oakland, CA'],
           travelMode: 'DRIVING',
