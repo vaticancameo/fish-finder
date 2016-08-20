@@ -26,15 +26,9 @@ def display_map():
     return render_template("google_maps_api_search2.html", data=stations_locations_str, key=key)
 
 
-@app.route("/distance")
+@app.route("/distance", methods=['POST'])
 def calculate_distance():
     """ Display distance between origin and destinations """
-
-    return render_template("google_maps_distance_test.html")
-
-
-@app.route("/test", methods=['POST'])
-def test():
 
     lat = request.form.get("lat")
     lon = request.form.get("lon")
