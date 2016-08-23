@@ -157,16 +157,15 @@
         geocoder.geocode({'address': userInput}, function(results, status) {
           if (status === 'OK') {
             var req = {"lat": results[0].geometry.location.lat(), "lon": results[0].geometry.location.lng()};
-            $.post("/distance", req, function (data) {
-              alert(data);
+            $.post("/", req, function (data) {
+              console.log(data);
             });
           } else {
             alert('Geocode was not successful for the following reason: ' + status);
           }
         });
 
-
-
+        // Distance matrix code continued:
         service.getDistanceMatrix({
           origins: [userInput],
           // destinations = jinja {{ data }}
@@ -229,53 +228,7 @@
         }
         markers = [];
       }
-    </script>
-<!--     camel-case or snake case?
- -->
-    <div class="tide-chart">
-    <canvas id="myChart" width="400" height="400"></canvas>
-    <div id="graphLegend" class="chart-legend"></div>
-    </div>
-    <script>
-      var ctx = document.getElementById("myChart");
-      var myChart = new Chart(ctx, {
-          type: 'bar',
-          data: {
-              labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
-              datasets: [{
-                  label: '# of Votes',
-                  data: [12, 19, 3, 5, 2, 3],
-                  backgroundColor: [
-                      'rgba(255, 99, 132, 0.2)',
-                      'rgba(54, 162, 235, 0.2)',
-                      'rgba(255, 206, 86, 0.2)',
-                      'rgba(75, 192, 192, 0.2)',
-                      'rgba(153, 102, 255, 0.2)',
-                      'rgba(255, 159, 64, 0.2)'
-                  ],
-                  borderColor: [
-                      'rgba(255,99,132,1)',
-                      'rgba(54, 162, 235, 1)',
-                      'rgba(255, 206, 86, 1)',
-                      'rgba(75, 192, 192, 1)',
-                      'rgba(153, 102, 255, 1)',
-                      'rgba(255, 159, 64, 1)'
-                  ],
-                  borderWidth: 1
-              }]
-          },
-          options: {
-              scales: {
-                  yAxes: [{
-                      ticks: {
-                          beginAtZero:true
-                      }
-                  }]
-              }
-          }
-      });
       </script>
-
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAKHJYd5wMg5IIxfRjxxOW0B5U8jV7sBw&libraries=places&callback=initAutocomplete"
          async defer></script>
