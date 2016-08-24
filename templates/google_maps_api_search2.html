@@ -23,7 +23,6 @@
         outline: none;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
       }
-
       #pac-input {
         background-color: #fff;
         font-family: Roboto;
@@ -34,21 +33,17 @@
         text-overflow: ellipsis;
         width: 300px;
       }
-
       #pac-input:focus {
         border-color: #4d90fe;
       }
-
       .pac-container {
         font-family: Roboto;
       }
-
       #type-selector {
         color: #fff;
         background-color: #4d90fe;
         padding: 5px 11px 0px 11px;
       }
-
       #type-selector label {
         font-family: Roboto;
         font-size: 13px;
@@ -72,49 +67,40 @@
       // This example adds a search box to a map, using the Google Place Autocomplete
       // feature. People can enter geographical searches. The search box will return a
       // pick list containing a mix of places and predicted search terms.
-
       // This example requires the Places library. Include the libraries=places
       // parameter when you first load the API. For example:
       // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
-
       function initAutocomplete() {
         var map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: 37.8087744, lng: -122.477101},
           zoom: 6,
           mapTypeId: 'terrain'
         });
-
         var destinationIcon = 'https://chart.googleapis.com/chart?' +
             'chst=d_map_pin_letter&chld=D|FF0000|000000';
         var originIcon = 'https://chart.googleapis.com/chart?' +
             'chst=d_map_pin_letter&chld=O|FFFF00|000000';
-
         // Create the search box and link it to the UI element.
         var input = document.getElementById('pac-input');
         var searchBox = new google.maps.places.SearchBox(input);
         map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
-
         // Bias the SearchBox results towards current map's viewport.
         map.addListener('bounds_changed', function() {
           searchBox.setBounds(map.getBounds());
         });
-
         var markers = [];
         // Listen for the event fired when the user selects a prediction and retrieve
         // more details for that place.
         searchBox.addListener('places_changed', function() {
           var places = searchBox.getPlaces();
-
           if (places.length == 0) {
             return;
           }
-
           // Clear out the old markers.
           markers.forEach(function(marker) {
             marker.setMap(null);
           });
           markers = [];
-
           // For each place, get the icon, name and location.
           var bounds = new google.maps.LatLngBounds();
           places.forEach(function(place) {
@@ -129,7 +115,6 @@
               anchor: new google.maps.Point(17, 34),
               scaledSize: new google.maps.Size(25, 25)
             };
-
             // Create a marker for each place.
             markers.push(new google.maps.Marker({
               map: map,
@@ -137,7 +122,6 @@
               title: place.name,
               position: place.geometry.location
             }));
-
             if (place.geometry.viewport) {
               // Only geocodes have viewport.
               bounds.union(place.geometry.viewport);
@@ -146,13 +130,10 @@
             }
           });
           map.fitBounds(bounds);
-
           // Distance matrix code begins here
         var geocoder = new google.maps.Geocoder;
-
         var service = new google.maps.DistanceMatrixService;
         var userInput = $('#pac-input').val();
-
         // convert user input city to lat/lon for python distance calculations
         geocoder.geocode({'address': userInput}, function(results, status) {
           if (status === 'OK') {
@@ -164,7 +145,6 @@
             alert('Geocode was not successful for the following reason: ' + status);
           }
         });
-
         // Distance matrix code continued:
         service.getDistanceMatrix({
           origins: [userInput],
@@ -183,7 +163,6 @@
             var outputDiv = document.getElementById('output');
             outputDiv.innerHTML = '';
             deleteMarkers(markers);
-
             var showGeocodedAddressOnMap = function(asDestination) {
               var icon = asDestination ? destinationIcon : originIcon;
               return function(results, status) {
@@ -199,9 +178,7 @@
                 }
               };
             };
-
             var bounds = new google.maps.LatLngBounds();
-
             for (var i = 0; i < originList.length; i++) {
               var results = response.rows[i].elements;
               geocoder.geocode({'address': originList[i]},
@@ -216,12 +193,8 @@
             } // end for var i = 0
           } // end else var originList var destinationList
         }); // end anonymous func f (status !== 'OK') and service.getDistanceMatrix
-
         }); // end searchBox.addListener
-
-
       } // end func initAutocomplete
-
       function deleteMarkers(markers) {
         for (var i = 0; i < markers.length; i++) {
           markers[i].setMap(null);
@@ -229,6 +202,72 @@
         markers = [];
       }
       </script>
+      <!-- End Google Maps JS -->
+
+      <script src="https://code.highcharts.com/highcharts.js"></script>
+      <script src="https://code.highcharts.com/modules/exporting.js"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.js"></script>
+
+      <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+      <script>
+      $(function () {
+        $('#container').highcharts({
+          chart: {
+            type: 'areaspline'
+        },
+        title: {
+            text: 'Tide Report for _____ Station'
+        },
+        subtitle: {
+            text: 'Put date/time range here'
+        },
+        xAxis: {
+            type: 'datetime',
+            dateTimeLabelFormats: { // don't display the dummy year
+                month: '%e. %b',
+                year: '%b'
+            },
+            title: {
+                text: 'Date/Time'
+            }
+        },
+        yAxis: {
+            title: {
+                text: 'Tide height (f)'
+            },
+            min: 0
+        },
+        tooltip: {
+            headerFormat: '<b>{series.name}</b><br>',
+            pointFormat: '{point.x:%e. %b}: {point.y:.2f} m'
+        },
+
+        plotOptions: {
+            spline: {
+                marker: {
+                    enabled: true
+                }
+            }
+        },
+
+        series: [{
+            name: 'Add time to hover, but not x axis label',
+            // Define the data points. All series have a dummy year
+            // of 1970/71 in order to be compared on the same x axis. Note
+            // that in JavaScript, months start at 0 for January, 1 for February etc.
+            // data:
+            data: [
+              [Date.UTC(2016, 8, 22, 1, 15), 4.7],
+              [Date.UTC(2016, 8, 22, 8, 20), 1.6],
+              [Date.UTC(2016, 8, 22, 15, 25), 3.8],
+              [Date.UTC(2016, 8, 22, 20, 37), 0.7]
+            ]
+        }] //end series
+    }); //end $.container
+}); //end $function
+
+    </script><!-- end Highcharts.js -->
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAKHJYd5wMg5IIxfRjxxOW0B5U8jV7sBw&libraries=places&callback=initAutocomplete"
          async defer></script>
