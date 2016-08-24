@@ -10,7 +10,7 @@ from model import Station, TideDay, TideDetail
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-key = os.environ['GOOGLE_MAPS_API_KEY']
+# key = os.environ['GOOGLE_MAPS_API_KEY']
 
 # Required to use Flask sessions and the debug toolbar
 app.secret_key = "ABC"
@@ -27,7 +27,7 @@ def display_map():
 
     stations_locations_str = json.dumps(stations_locations)
 
-    return render_template("search.html", data=stations_locations_str, key=key)
+    return render_template("search.html", data=stations_locations_str)
 
 
 @app.route("/", methods=['POST'])
@@ -46,11 +46,17 @@ def calculate_distance():
         slon = station.longitude
         dist = distance((lat, lon), (slat, slon)).miles
 
-        station_distances.append({"station": station.name, "latitude": station.latitude, "longitude": station.longitude, "dist": dist})
+        station_distances.append({"lat": station.latitude, "lng": station.longitude, "dist": dist})
 
     nearest_stations = sorted(station_distances, key=lambda d: d["dist"])[:7]
 
-    result = {"nearest_stations": nearest_stations}
+    lats_lons = []
+    for station in nearest_stations:
+        lat_lng = {k: station[k] for k in ('lat', 'lng')}
+        lats_lons.append(lat_lng)
+
+    print "lats_lons: ", lats_lons
+    result = {"nearest_stations": lats_lons}
     return jsonify(result)
 
 

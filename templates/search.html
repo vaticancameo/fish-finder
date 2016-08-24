@@ -89,6 +89,7 @@
           searchBox.setBounds(map.getBounds());
         });
         var markers = [];
+
         // Listen for the event fired when the user selects a prediction and retrieve
         // more details for that place.
         searchBox.addListener('places_changed', function() {
@@ -128,7 +129,14 @@
             } else {
               bounds.extend(place.geometry.location);
             }
-          });
+
+            //sample code for on click event to show graph
+            // marker.addListener('click', function() {
+            //   alert('Link to graph from here')
+            // });
+            // question for nimbus: does this go witin searchbox.addlistener?
+
+          }); // end places.forEach function
           map.fitBounds(bounds);
           // Distance matrix code begins here
         var geocoder = new google.maps.Geocoder;
@@ -140,6 +148,9 @@
             var req = {"lat": results[0].geometry.location.lat(), "lon": results[0].geometry.location.lng()};
             $.post("/", req, function (data) {
               console.log(data);
+              // start here: calculate 10 driving distances
+              // sort in js (is there a parameter to pass to sort, or sort by value)
+              // display markers for closest 3
             });
           } else {
             alert('Geocode was not successful for the following reason: ' + status);
@@ -148,7 +159,6 @@
         // Distance matrix code continued:
         service.getDistanceMatrix({
           origins: [userInput],
-          // destinations = jinja {{ data }}
           destinations: ['San Francisco, CA', 'Oakland, CA'],
           travelMode: 'DRIVING',
           unitSystem: google.maps.UnitSystem.METRIC,
