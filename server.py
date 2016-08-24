@@ -27,7 +27,7 @@ def display_map():
 
     stations_locations_str = json.dumps(stations_locations)
 
-    return render_template("google_maps_api_search2.html", data=stations_locations_str, key=key)
+    return render_template("search.html", data=stations_locations_str, key=key)
 
 
 @app.route("/", methods=['POST'])
