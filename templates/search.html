@@ -219,6 +219,9 @@
                     title: title
                   });
                   markers.push(marker);
+                  marker.addListener('click', function() {
+                    alert('Link to graph from here')
+                  });
                 } else {
                   alert('Geocode was not successful due to: ' + status);
                 }
@@ -231,7 +234,7 @@
                   showGeocodedAddressOnMap(false, userInput));
               for (var j = 0; j < destinations.length; j++) {
                 // var title = data.nearest_stations[j].name;
-                var title = [stations.nearest_stations[j].name, response.rows[0].elements[j].distance.text, response.rows[0].elements[j].duration.text];
+                var title = [destinations[j].name, destinations[j].miles, destinations[j].dur];
                 title = title.join(', ');
                 geocoder.geocode({'address': destinations[j]["dest"]},
                     showGeocodedAddressOnMap(true, title));
@@ -243,13 +246,6 @@
           } // end else var originList var destinationList
         }); // end anonymous func f (status !== 'OK') and service.getDistanceMatrix
       } // end distanceMatrix func
-
-      // function displayGraph {
-                    // sample code for on click event to show graph
-      //       marker.addListener('click', function() {
-      //         alert('Link to graph from here')
-      //       });
-      // }
 
       function deleteMarkers(markers) {
         for (var i = 0; i < markers.length; i++) {
