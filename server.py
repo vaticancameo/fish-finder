@@ -20,14 +20,7 @@ app.secret_key = "ABC"
 def display_map():
     """ Display map with search box and test markers """
 
-    station1 = {"id": "9414958", "name": "Bolinas, Bolinas Lagoon", "lat": 37.9080, "lon": -122.6785}
-    station2 = {"id": "9410170", "name": "San Diego", "lat": 32.7142, "lon": -117.1736}
-
-    stations_locations = [station1, station2]
-
-    stations_locations_str = json.dumps(stations_locations)
-
-    return render_template("search.html", data=stations_locations_str)
+    return render_template("search.html")
 
 
 @app.route("/", methods=['POST'])

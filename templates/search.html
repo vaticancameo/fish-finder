@@ -125,24 +125,16 @@
             } else {
               bounds.extend(place.geometry.location);
             }
-
-            //sample code for on click event to show graph
-            // marker.addListener('click', function() {
-            //   alert('Link to graph from here')
-            // });
-            // question for nimbus: does this go witin searchbox.addlistener?
-
           }); // end places.forEach function
           map.fitBounds(bounds);
-          var newMarkers = distanceMatrix(map);
+          var newMarkers = geocode(map);
 
           console.log("new markers");
           console.log(newMarkers);
-          console.log(newMarkers.length);
         }); // end searchBox.addListener
       } // end func initAutocomplete
 
-      function distanceMatrix(map) {
+      function geocode(map) {
 
         var markers = [];
                   // Distance matrix code begins here
@@ -153,20 +145,18 @@
           if (status === 'OK') {
             var req = {"lat": results[0].geometry.location.lat(), "lon": results[0].geometry.location.lng()};
             $.post("/", req, function (data) {
+              console.log("nearest stations")
               console.log(data);
-              distanceMatrix2(map, userInput, geocoder, data);
-              // start here: calculate 10 driving distances
-              // sort in js (is there a parameter to pass to sort, or sort by value)
-              // display markers for closest 3
+              distanceMatrix(map, userInput, geocoder, data);
             });
           } else {
             alert('Geocode was not successful for the following reason: ' + status);
           }
         });
         return markers;
-      } // end distance matrix func
+      } // end geocode func
 
-      function distanceMatrix2(map, userInput, geocoder, data) {
+      function distanceMatrix(map, userInput, geocoder, data) {
 
         var destinationIcon = 'https://chart.googleapis.com/chart?' +
             'chst=d_map_pin_letter&chld=D|FF0000|000000';
@@ -181,7 +171,7 @@
           origins: [userInput],
           destinations: data.nearest_stations,
           travelMode: 'DRIVING',
-          unitSystem: google.maps.UnitSystem.METRIC,
+          unitSystem: google.maps.UnitSystem.IMPERIAL,
           avoidHighways: false,
           avoidTolls: false
         }, function(response, status) {
@@ -192,13 +182,19 @@
             var destinationList = response.destinationAddresses;
 
             var destinations = [];
+            console.log("response.rows")
             console.log(response.rows);
 
+            // create array of destination objects
             for (var i = 0; i < destinationList.length; i++) {
-              destination = {"name": data.nearest_stations[i].name,
+              if (status === 'OK') {
+                destination = {"name": data.nearest_stations[i].name,
                             "dest": destinationList[i],
-                            "dist": response.rows[0].elements[i].distance.value};
-              destinations.push(destination);
+                            "dist": response.rows[0].elements[i].distance.value,
+                            "miles": response.rows[0].elements[i].distance.text,
+                            "dur": response.rows[0].elements[i].duration.text};
+                destinations.push(destination);
+              }
             }
 
             destinations.sort(function(d1, d2){
@@ -206,6 +202,8 @@
             });
 
             destinations = destinations.slice(0, 3);
+            console.log("destinations");
+            console.log(destinations);
 
             var outputDiv = document.getElementById('output');
             outputDiv.innerHTML = '';
@@ -233,17 +231,26 @@
               geocoder.geocode({'address': originList[i]},
                   showGeocodedAddressOnMap(false, userInput));
               for (var j = 0; j < destinations.length; j++) {
-                var title = data.nearest_stations[j].name;
+                // var title = data.nearest_stations[j].name;
+                var title = [data.nearest_stations[j].name, response.rows[0].elements[j].distance.text, response.rows[0].elements[j].duration.text];
+                title = title.join(', ');
                 geocoder.geocode({'address': destinations[j]["dest"]},
                     showGeocodedAddressOnMap(true, title));
-                outputDiv.innerHTML += originList[i] + ' to ' + destinations[j] +
+                outputDiv.innerHTML += originList[i] + ' to ' + destinations[j]["name"] +
                     ': ' + results[j].distance.text + ' in ' +
                     results[j].duration.text + '<br>';
               }
             } // end for var i = 0
           } // end else var originList var destinationList
         }); // end anonymous func f (status !== 'OK') and service.getDistanceMatrix
-      }
+      } // end distanceMatrix func
+
+      // function displayGraph {
+                    // sample code for on click event to show graph
+      //       marker.addListener('click', function() {
+      //         alert('Link to graph from here')
+      //       });
+      // }
 
       function deleteMarkers(markers) {
         for (var i = 0; i < markers.length; i++) {
