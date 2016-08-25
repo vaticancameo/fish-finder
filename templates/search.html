@@ -70,6 +70,8 @@
       // This example requires the Places library. Include the libraries=places
       // parameter when you first load the API. For example:
       // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+      var markers = [];
+
       function initAutocomplete() {
         var map = new google.maps.Map(document.getElementById('map'), {
           center: {lat: 37.8087744, lng: -122.477101},
@@ -84,7 +86,8 @@
         map.addListener('bounds_changed', function() {
           searchBox.setBounds(map.getBounds());
         });
-        var markers = [];
+        //removed when trying to get rid of duplicate markers
+        // var markers = [];
 
         // Listen for the event fired when the user selects a prediction and retrieve
         // more details for that place.
@@ -93,6 +96,7 @@
           if (places.length == 0) {
             return;
           }
+          //sectionremoved when trying to get rid of duplicate markers
           // Clear out the old markers.
           markers.forEach(function(marker) {
             marker.setMap(null);
@@ -113,12 +117,13 @@
               scaledSize: new google.maps.Size(25, 25)
             };
             // Create a marker for each place.
-            markers.push(new google.maps.Marker({
-              map: map,
-              icon: icon,
-              title: place.name,
-              position: place.geometry.location
-            }));
+            //sectionremoved when trying to get rid of duplicate markers
+            // markers.push(new google.maps.Marker({
+            //   map: map,
+            //   icon: icon,
+            //   title: place.name,
+            //   position: place.geometry.location
+            // }));
             if (place.geometry.viewport) {
               // Only geocodes have viewport.
               bounds.union(place.geometry.viewport);
@@ -127,16 +132,13 @@
             }
           }); // end places.forEach function
           map.fitBounds(bounds);
-          var newMarkers = geocode(map);
+          var latLngs = calculateLatLng(map);
 
-          console.log("new markers");
-          console.log(newMarkers);
         }); // end searchBox.addListener
       } // end func initAutocomplete
 
-      function geocode(map) {
+      function calculateLatLng(map) {
 
-        var markers = [];
                   // Distance matrix code begins here
         var geocoder = new google.maps.Geocoder;
         var userInput = $('#pac-input').val();
@@ -144,19 +146,18 @@
         geocoder.geocode({'address': userInput}, function(results, status) {
           if (status === 'OK') {
             var req = {"lat": results[0].geometry.location.lat(), "lon": results[0].geometry.location.lng()};
-            $.post("/", req, function (data) {
+            $.post("/", req, function (stations) {
               console.log("nearest stations")
-              console.log(data);
-              distanceMatrix(map, userInput, geocoder, data);
+              console.log(stations);
+              distanceMatrix(map, userInput, geocoder, stations);
             });
           } else {
             alert('Geocode was not successful for the following reason: ' + status);
           }
         });
-        return markers;
       } // end geocode func
 
-      function distanceMatrix(map, userInput, geocoder, data) {
+      function distanceMatrix(map, userInput, geocoder, stations) {
 
         var destinationIcon = 'https://chart.googleapis.com/chart?' +
             'chst=d_map_pin_letter&chld=D|FF0000|000000';
@@ -165,11 +166,9 @@
 
         var service = new google.maps.DistanceMatrixService;
 
-        var markers = [];
-
         service.getDistanceMatrix({
           origins: [userInput],
-          destinations: data.nearest_stations,
+          destinations: stations.nearest_stations,
           travelMode: 'DRIVING',
           unitSystem: google.maps.UnitSystem.IMPERIAL,
           avoidHighways: false,
@@ -187,8 +186,8 @@
 
             // create array of destination objects
             for (var i = 0; i < destinationList.length; i++) {
-              if (status === 'OK') {
-                destination = {"name": data.nearest_stations[i].name,
+              if (response.rows[0].elements[i].status !== "ZERO_RESULTS") {
+                destination = {"name": stations.nearest_stations[i].name,
                             "dest": destinationList[i],
                             "dist": response.rows[0].elements[i].distance.value,
                             "miles": response.rows[0].elements[i].distance.text,
@@ -232,7 +231,7 @@
                   showGeocodedAddressOnMap(false, userInput));
               for (var j = 0; j < destinations.length; j++) {
                 // var title = data.nearest_stations[j].name;
-                var title = [data.nearest_stations[j].name, response.rows[0].elements[j].distance.text, response.rows[0].elements[j].duration.text];
+                var title = [stations.nearest_stations[j].name, response.rows[0].elements[j].distance.text, response.rows[0].elements[j].duration.text];
                 title = title.join(', ');
                 geocoder.geocode({'address': destinations[j]["dest"]},
                     showGeocodedAddressOnMap(true, title));
