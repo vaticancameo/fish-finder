@@ -76,10 +76,6 @@
           zoom: 6,
           mapTypeId: 'terrain'
         });
-        var destinationIcon = 'https://chart.googleapis.com/chart?' +
-            'chst=d_map_pin_letter&chld=D|FF0000|000000';
-        var originIcon = 'https://chart.googleapis.com/chart?' +
-            'chst=d_map_pin_letter&chld=O|FFFF00|000000';
         // Create the search box and link it to the UI element.
         var input = document.getElementById('pac-input');
         var searchBox = new google.maps.places.SearchBox(input);
@@ -138,9 +134,19 @@
 
           }); // end places.forEach function
           map.fitBounds(bounds);
-          // Distance matrix code begins here
+          var newMarkers = distanceMatrix(map);
+
+          console.log("new markers");
+          console.log(newMarkers);
+          console.log(newMarkers.length);
+        }); // end searchBox.addListener
+      } // end func initAutocomplete
+
+      function distanceMatrix(map) {
+
+        var markers = [];
+                  // Distance matrix code begins here
         var geocoder = new google.maps.Geocoder;
-        var service = new google.maps.DistanceMatrixService;
         var userInput = $('#pac-input').val();
         // convert user input city to lat/lon for python distance calculations
         geocoder.geocode({'address': userInput}, function(results, status) {
@@ -148,6 +154,7 @@
             var req = {"lat": results[0].geometry.location.lat(), "lon": results[0].geometry.location.lng()};
             $.post("/", req, function (data) {
               console.log(data);
+              distanceMatrix2(map, userInput, geocoder, data);
               // start here: calculate 10 driving distances
               // sort in js (is there a parameter to pass to sort, or sort by value)
               // display markers for closest 3
@@ -156,10 +163,23 @@
             alert('Geocode was not successful for the following reason: ' + status);
           }
         });
-        // Distance matrix code continued:
+        return markers;
+      } // end distance matrix func
+
+      function distanceMatrix2(map, userInput, geocoder, data) {
+
+        var destinationIcon = 'https://chart.googleapis.com/chart?' +
+            'chst=d_map_pin_letter&chld=D|FF0000|000000';
+        var originIcon = 'https://chart.googleapis.com/chart?' +
+            'chst=d_map_pin_letter&chld=O|FFFF00|000000';
+
+        var service = new google.maps.DistanceMatrixService;
+
+        var markers = [];
+
         service.getDistanceMatrix({
           origins: [userInput],
-          destinations: ['San Francisco, CA', 'Oakland, CA'],
+          destinations: data.nearest_stations,
           travelMode: 'DRIVING',
           unitSystem: google.maps.UnitSystem.METRIC,
           avoidHighways: false,
@@ -170,19 +190,38 @@
           } else {
             var originList = response.originAddresses;
             var destinationList = response.destinationAddresses;
+
+            var destinations = [];
+            console.log(response.rows);
+
+            for (var i = 0; i < destinationList.length; i++) {
+              destination = {"name": data.nearest_stations[i].name,
+                            "dest": destinationList[i],
+                            "dist": response.rows[0].elements[i].distance.value};
+              destinations.push(destination);
+            }
+
+            destinations.sort(function(d1, d2){
+              return d1.dist - d2.dist;
+            });
+
+            destinations = destinations.slice(0, 3);
+
             var outputDiv = document.getElementById('output');
             outputDiv.innerHTML = '';
             deleteMarkers(markers);
-            var showGeocodedAddressOnMap = function(asDestination) {
+            var showGeocodedAddressOnMap = function(asDestination, title) {
               var icon = asDestination ? destinationIcon : originIcon;
               return function(results, status) {
                 if (status === 'OK') {
                   map.fitBounds(bounds.extend(results[0].geometry.location));
-                  markers.push(new google.maps.Marker({
+                  var marker = new google.maps.Marker({
                     map: map,
                     position: results[0].geometry.location,
-                    icon: icon
-                  }));
+                    icon: icon,
+                    title: title
+                  });
+                  markers.push(marker);
                 } else {
                   alert('Geocode was not successful due to: ' + status);
                 }
@@ -192,19 +231,20 @@
             for (var i = 0; i < originList.length; i++) {
               var results = response.rows[i].elements;
               geocoder.geocode({'address': originList[i]},
-                  showGeocodedAddressOnMap(false));
-              for (var j = 0; j < results.length; j++) {
-                geocoder.geocode({'address': destinationList[j]},
-                    showGeocodedAddressOnMap(true));
-                outputDiv.innerHTML += originList[i] + ' to ' + destinationList[j] +
+                  showGeocodedAddressOnMap(false, userInput));
+              for (var j = 0; j < destinations.length; j++) {
+                var title = data.nearest_stations[j].name;
+                geocoder.geocode({'address': destinations[j]["dest"]},
+                    showGeocodedAddressOnMap(true, title));
+                outputDiv.innerHTML += originList[i] + ' to ' + destinations[j] +
                     ': ' + results[j].distance.text + ' in ' +
                     results[j].duration.text + '<br>';
               }
             } // end for var i = 0
           } // end else var originList var destinationList
         }); // end anonymous func f (status !== 'OK') and service.getDistanceMatrix
-        }); // end searchBox.addListener
-      } // end func initAutocomplete
+      }
+
       function deleteMarkers(markers) {
         for (var i = 0; i < markers.length; i++) {
           markers[i].setMap(null);

@@ -46,17 +46,18 @@ def calculate_distance():
         slon = station.longitude
         dist = distance((lat, lon), (slat, slon)).miles
 
-        station_distances.append({"lat": station.latitude, "lng": station.longitude, "dist": dist})
+        station_distances.append({"name": station.name, "lat": station.latitude, "lng": station.longitude, "dist": dist})
 
     nearest_stations = sorted(station_distances, key=lambda d: d["dist"])[:7]
+    print "nearest stations: ", nearest_stations
 
-    lats_lons = []
-    for station in nearest_stations:
-        lat_lng = {k: station[k] for k in ('lat', 'lng')}
-        lats_lons.append(lat_lng)
+    # lats_lons = []
+    # for station in nearest_stations:
+    #     lat_lng = {k: station[k] for k in ('lat', 'lng')}
+    #     lats_lons.append(lat_lng)
 
-    print "lats_lons: ", lats_lons
-    result = {"nearest_stations": lats_lons}
+    # print "lats_lons: ", lats_lons
+    result = {"nearest_stations": nearest_stations}
     return jsonify(result)
 
 
