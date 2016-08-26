@@ -3,7 +3,7 @@
   <head>
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
-    <title>Places Searchbox</title>
+    <title>Fish Finder</title>
     <style>
       html, body {
         height: 100%;
@@ -220,7 +220,11 @@
                   });
                   markers.push(marker);
                   marker.addListener('click', function() {
-                    alert('Link to graph from here')
+                    // alert('Link to graph from here')
+                    req = {"date": "date"}
+                    var date_data = $.post("/tides", req, function (result) {
+                      console.log(result);
+                    });
                   });
                 } else {
                   alert('Geocode was not successful due to: ' + status);
@@ -261,6 +265,11 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.js"></script>
 
       <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
+
+     <!--  var req = {"lat": 37.798342, "lon": -122.43}
+        $.post("/test", req, function (data) {
+          alert(data);
+        }); -->
 
       <script>
       $(function () {
@@ -309,7 +318,7 @@
             // of 1970/71 in order to be compared on the same x axis. Note
             // that in JavaScript, months start at 0 for January, 1 for February etc.
             // data:
-            data: [
+        data: [
               [Date.UTC(2016, 8, 22, 1, 15), 4.7],
               [Date.UTC(2016, 8, 22, 8, 20), 1.6],
               [Date.UTC(2016, 8, 22, 15, 25), 3.8],
