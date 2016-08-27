@@ -41,7 +41,7 @@ def calculate_distance():
         slon = station.longitude
         dist = distance((lat, lon), (slat, slon)).miles
 
-        station_distances.append({"name": station.name, "lat": station.latitude, "lng": station.longitude, "dist": dist})
+        station_distances.append({"name": station.name, "id": station.station_id, "lat": station.latitude, "lng": station.longitude, "dist": dist})
 
     nearest_stations = sorted(station_distances, key=lambda d: d["dist"])[:7]
     result = {"nearest_stations": nearest_stations}
@@ -74,14 +74,11 @@ def display_graph():
         hour = times_heights[i].tide_time.hour
         minute = times_heights[i].tide_time.minute
         height = times_heights[i].tide_height
-        time_height = ['Date.UTC({}, {}, {}, {}, {}), {}]'.format(year, month, day, hour, minute, height)]
+        time_height = [int(datetime(year, month, day, hour, minute).strftime('%s')) * 1000, height]
         data.append(time_height)
     print data
 
-    result = {"high_charts_date": data}
-    print "result", result
-
-    return jsonify(result)
+    return jsonify(data)
 
 
 if __name__ == "__main__":

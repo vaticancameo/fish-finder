@@ -224,6 +224,7 @@
                     req = {"date": "date"}
                     var date_data = $.post("/tides", req, function (result) {
                       console.log(result);
+                      displayGraph(result);
                     });
                   });
                 } else {
@@ -266,13 +267,14 @@
 
       <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
 
+
      <!--  var req = {"lat": 37.798342, "lon": -122.43}
         $.post("/test", req, function (data) {
           alert(data);
         }); -->
 
       <script>
-      $(function () {
+        function displayGraph(date_data) {
         $('#container').highcharts({
           chart: {
             type: 'areaspline'
@@ -318,15 +320,16 @@
             // of 1970/71 in order to be compared on the same x axis. Note
             // that in JavaScript, months start at 0 for January, 1 for February etc.
             // data:
-        data: [
-              [Date.UTC(2016, 8, 22, 1, 15), 4.7],
-              [Date.UTC(2016, 8, 22, 8, 20), 1.6],
-              [Date.UTC(2016, 8, 22, 15, 25), 3.8],
-              [Date.UTC(2016, 8, 22, 20, 37), 0.7]
-            ]
+        data: date_data
+        // data: [
+        //       [Date.UTC(2016, 8, 22, 1, 15), 4.7],
+        //       [Date.UTC(2016, 8, 22, 8, 20), 1.6],
+        //       [Date.UTC(2016, 8, 22, 15, 25), 3.8],
+        //       [Date.UTC(2016, 8, 22, 20, 37), 0.7]
+        //     ]
         }] //end series
     }); //end $.container
-}); //end $function
+} //end $function
 
     </script><!-- end Highcharts.js -->
 
