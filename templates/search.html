@@ -155,7 +155,7 @@
             alert('Geocode was not successful for the following reason: ' + status);
           }
         });
-      } // end geocode func
+      } // end calculateLatLng func
 
       function distanceMatrix(map, userInput, geocoder, stations) {
 
@@ -184,11 +184,12 @@
             console.log("response.rows")
             console.log(response.rows);
 
-            // create array of destination objects
+            // Create array of destination objects
             for (var i = 0; i < destinationList.length; i++) {
               if (response.rows[0].elements[i].status !== "ZERO_RESULTS") {
                 destination = {"name": stations.nearest_stations[i].name,
                             "dest": destinationList[i],
+                            "id": stations.nearest_stations[i].id,
                             "dist": response.rows[0].elements[i].distance.value,
                             "miles": response.rows[0].elements[i].distance.text,
                             "dur": response.rows[0].elements[i].duration.text};
@@ -207,7 +208,7 @@
             var outputDiv = document.getElementById('output');
             outputDiv.innerHTML = '';
             deleteMarkers(markers);
-            var showGeocodedAddressOnMap = function(asDestination, title) {
+            var showGeocodedAddressOnMap = function(asDestination, title, id) {
               var icon = asDestination ? destinationIcon : originIcon;
               return function(results, status) {
                 if (status === 'OK') {
@@ -220,8 +221,7 @@
                   });
                   markers.push(marker);
                   marker.addListener('click', function() {
-                    // alert('Link to graph from here')
-                    req = {"date": "date"}
+                    req = {"date": "date", "id": id};
                     var date_data = $.post("/tides", req, function (result) {
                       console.log(result);
                       displayGraph(result);
@@ -238,11 +238,11 @@
               geocoder.geocode({'address': originList[i]},
                   showGeocodedAddressOnMap(false, userInput));
               for (var j = 0; j < destinations.length; j++) {
-                // var title = data.nearest_stations[j].name;
-                var title = [destinations[j].name, destinations[j].miles, destinations[j].dur];
+                var title = [destinations[j].name, destinations[j].id, destinations[j].miles, destinations[j].dur];
                 title = title.join(', ');
+                var id = destinations[j].id;
                 geocoder.geocode({'address': destinations[j]["dest"]},
-                    showGeocodedAddressOnMap(true, title));
+                    showGeocodedAddressOnMap(true, title, id));
                 outputDiv.innerHTML += originList[i] + ' to ' + destinations[j]["name"] +
                     ': ' + results[j].distance.text + ' in ' +
                     results[j].duration.text + '<br>';

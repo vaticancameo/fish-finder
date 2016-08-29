@@ -54,21 +54,20 @@ def display_graph():
     """ Display tide details graph for specific day """
 
     d = request.form.get("date")
-    print "d", d
     # will eventually calculate user-inputted date
+    print "d", d
+
+    id = request.form.get("id")
+    print "id", id
+
     today = datetime.now().date()
     year = today.year
     month = today.month
     day = today.day
 
-    tide_day = TideDay.query.filter(TideDay.station_id == 9414958, TideDay.date == today).all()
+    tide_day = TideDay.query.filter(TideDay.station_id == id, TideDay.date == today).all()
     times_heights = TideDetail.query.filter(TideDetail.tide_day_id == tide_day[0].tide_day_id).all()
 
-    print "tide_day", tide_day[0].date
-    print "times_heights", times_heights
-    print "time mins", times_heights[0].tide_time.minute
-
-    ### NEED TO SUBTRACT ONE FROM MONTH BECAUSE JAN == 0!!!!!
     data = []
     for i in range(len(times_heights)):
         hour = times_heights[i].tide_time.hour
