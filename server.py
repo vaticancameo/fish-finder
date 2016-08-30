@@ -4,7 +4,8 @@ import json
 import os
 from geopy.distance import distance
 from datetime import datetime
-
+from dateutil import tz
+import pytz
 from model import connect_to_db
 from model import Station, TideDay, TideDetail
 
@@ -65,6 +66,8 @@ def display_graph():
     month = today.month
     day = today.day
 
+    # localtz = pytz.timezone("US/Pacific")
+
     tide_day = TideDay.query.filter(TideDay.station_id == id, TideDay.date == today).all()
     times_heights = TideDetail.query.filter(TideDetail.tide_day_id == tide_day[0].tide_day_id).all()
 
@@ -73,6 +76,8 @@ def display_graph():
         hour = times_heights[i].tide_time.hour
         minute = times_heights[i].tide_time.minute
         height = times_heights[i].tide_height
+        # local_dt = utc_dt.astimezone(localtz)
+        # time_height = [int(local_dt.strftime('%s')) * 1000, height]
         time_height = [int(datetime(year, month, day, hour, minute).strftime('%s')) * 1000, height]
         data.append(time_height)
     print data

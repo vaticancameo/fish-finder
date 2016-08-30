@@ -208,7 +208,7 @@
             var outputDiv = document.getElementById('output');
             outputDiv.innerHTML = '';
             deleteMarkers(markers);
-            var showGeocodedAddressOnMap = function(asDestination, title, id) {
+            var showGeocodedAddressOnMap = function(asDestination, title, id, name) {
               var icon = asDestination ? destinationIcon : originIcon;
               return function(results, status) {
                 if (status === 'OK') {
@@ -224,7 +224,7 @@
                     req = {"date": "date", "id": id};
                     var date_data = $.post("/tides", req, function (result) {
                       console.log(result);
-                      displayGraph(result);
+                      displayGraph(result, name);
                     });
                   });
                 } else {
@@ -242,10 +242,10 @@
                 title = title.join(', ');
                 var id = destinations[j].id;
                 geocoder.geocode({'address': destinations[j]["dest"]},
-                    showGeocodedAddressOnMap(true, title, id));
-                outputDiv.innerHTML += originList[i] + ' to ' + destinations[j]["name"] +
-                    ': ' + results[j].distance.text + ' in ' +
-                    results[j].duration.text + '<br>';
+                    showGeocodedAddressOnMap(true, title, id, destinations[j].name));
+                // outputDiv.innerHTML += originList[i] + ' to ' + destinations[j]["name"] +
+                //     ': ' + results[j].distance.text + ' in ' +
+                //     results[j].duration.text + '<br>';
               }
             } // end for var i = 0
           } // end else var originList var destinationList
@@ -274,13 +274,13 @@
         }); -->
 
       <script>
-        function displayGraph(date_data) {
+        function displayGraph(date_data, name) {
         $('#container').highcharts({
           chart: {
             type: 'areaspline'
         },
         title: {
-            text: 'Tide Report for _____ Station'
+            text: 'Tide Report for ' + name + ' Station'
         },
         subtitle: {
             text: 'Put date/time range here'
@@ -288,6 +288,7 @@
         xAxis: {
             type: 'datetime',
             dateTimeLabelFormats: { // don't display the dummy year
+                hour: '%H:%M',
                 month: '%e. %b',
                 year: '%b'
             },
@@ -303,7 +304,7 @@
         },
         tooltip: {
             headerFormat: '<b>{series.name}</b><br>',
-            pointFormat: '{point.x:%e. %b}: {point.y:.2f} m'
+            pointFormat: '{point.x:%e. %b}: {point.x:%H:%M}: {point.y:.2f} f'
         },
 
         plotOptions: {
