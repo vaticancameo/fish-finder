@@ -4,6 +4,7 @@
     <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
     <meta charset="utf-8">
     <title>Fish Finder</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.0/themes/base/jquery-ui.css">
     <style>
       html, body {
         height: 100%;
@@ -95,7 +96,7 @@
             return;
           }
 
-          // hide graph when places changed event is registered
+          // Hide graph when places_changed event is registered
           $('#pac-input').change(function(){
             $('#container').hide();
           });
@@ -126,19 +127,19 @@
             } else {
               bounds.extend(place.geometry.location);
             }
-          }); // end places.forEach function
+          }); // end places.forEach function. I will remove this comment later.
           map.fitBounds(bounds);
           var latLngs = calculateLatLng(map);
 
-        }); // end searchBox.addListener
-      } // end func initAutocomplete
+        }); // end searchBox.addListener. I will remove this comment later.
+      } // end func initAutocomplete. I will remove this comment later.
 
       function calculateLatLng(map) {
 
-                  // Distance matrix code begins here
+        // Distance matrix code begins here. I will remove this comment later.
         var geocoder = new google.maps.Geocoder;
         var userInput = $('#pac-input').val();
-        // convert user input city to lat/lon for python distance calculations
+        // Convert user input city to lat/lon for Python distance calculations
         geocoder.geocode({'address': userInput}, function(results, status) {
           if (status === 'OK') {
             var req = {"lat": results[0].geometry.location.lat(), "lon": results[0].geometry.location.lng()};
@@ -151,7 +152,7 @@
             alert('Geocode was not successful for the following reason: ' + status);
           }
         });
-      } // end calculateLatLng func
+      } // end calculateLatLng func. I will remove this comment later.
 
       function distanceMatrix(map, userInput, geocoder, stations) {
 
@@ -217,7 +218,10 @@
                   });
                   markers.push(marker);
                   marker.addListener('click', function() {
-                    req = {"date": "date", "id": id};
+                    var user_date = $('#datepicker').val();
+                    console.log("Date");
+                    console.log(user_date);
+                    req = {"date": user_date, "id": id};
                     var date_data = $.post("/tides", req, function (result) {
                       console.log(result);
                       $('#container').show();
@@ -241,10 +245,10 @@
                 geocoder.geocode({'address': destinations[j]["dest"]},
                     showGeocodedAddressOnMap(true, title, id, destinations[j].name));
               }
-            } // end for var i = 0
-          } // end else var originList var destinationList
-        }); // end anonymous func f (status !== 'OK') and service.getDistanceMatrix
-      } // end distanceMatrix func
+            } // end for var i = 0. I will remove this comment later.
+          } // end else var originList var destinationList. I will remove this comment later.
+        }); // end anonymous func f (status !== 'OK') and service.getDistanceMatrix. I will remove this comment later.
+      } // end distanceMatrix func. I will remove this comment later.
 
       function deleteMarkers(markers) {
         for (var i = 0; i < markers.length; i++) {
@@ -255,18 +259,21 @@
       </script>
       <!-- End Google Maps JS -->
 
+      <!-- Start Datepicker JS -->
+      <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.js"></script>
+      <script>
+        $( function() {
+          $( "#datepicker" ).datepicker();
+        } );
+      </script>
+      <p>Date: <input type="text" id="datepicker"></p>
+      <!-- End Datepicker JS -->
+
+      <!-- Start Highcharts JS -->
       <script src="https://code.highcharts.com/highcharts.js"></script>
       <script src="https://code.highcharts.com/modules/exporting.js"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.14.1/moment.js"></script>
-
       <div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-
-
-     <!--  var req = {"lat": 37.798342, "lon": -122.43}
-        $.post("/test", req, function (data) {
-          alert(data);
-        }); -->
-
       <script>
         function displayGraph(date_data, name) {
         $('#container').highcharts({
@@ -281,7 +288,7 @@
         },
         xAxis: {
             type: 'datetime',
-            dateTimeLabelFormats: { // don't display the dummy year
+            dateTimeLabelFormats: {
                 hour: '%H:%M',
                 month: '%e. %b',
                 year: '%b'
@@ -308,25 +315,15 @@
                 }
             }
         },
-
         series: [{
             name: 'Tide height and time',
-            // Define the data points. All series have a dummy year
-            // of 1970/71 in order to be compared on the same x axis. Note
-            // that in JavaScript, months start at 0 for January, 1 for February etc.
-            // data:
-        data: date_data
-        // data: [
-        //       [Date.UTC(2016, 8, 22, 1, 15), 4.7],
-        //       [Date.UTC(2016, 8, 22, 8, 20), 1.6],
-        //       [Date.UTC(2016, 8, 22, 15, 25), 3.8],
-        //       [Date.UTC(2016, 8, 22, 20, 37), 0.7]
-        //     ]
-        }] //end series
-    }); //end $.container
-} //end $function
+            data: date_data
+        }]
+      });
+      }
 
-    </script><!-- end Highcharts.js -->
+    </script>
+    <!-- End Highcharts.js -->
 
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDAKHJYd5wMg5IIxfRjxxOW0B5U8jV7sBw&libraries=places&callback=initAutocomplete"
          async defer></script>

@@ -20,7 +20,7 @@ class IntegrationTestCase(unittest.TestCase):
         self.assertIn('tbd', result.data)
         # result.data is the response string (html)
 
-    # api tests. end to end. if refactor code, shouldn't have to change tests
+    # add api tests. end to end. if refactor code, shouldn't have to change tests
 
     def tearDown(self):
         return self
